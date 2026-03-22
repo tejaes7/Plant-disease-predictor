@@ -22,7 +22,7 @@ I trained a ResNet-18 model on the PlantVillage dataset, then wrapped it in a Fa
 
 ## 🌱 Classes It Can Predict
 
-The model can identify the following 15 plant conditions:
+The model can identify the following 15 plant conditions with 97% accuracy:
 
 | # | Class |
 |---|-------|
