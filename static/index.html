@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Disease Classifier</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9, #f1f8e9);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 420px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 { color: #2e7d32; font-size: 1.6rem; margin-bottom: 6px; }
+
+        p.subtitle { color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+
+        .upload-area {
+            border: 2px dashed #a5d6a7;
+            border-radius: 14px;
+            padding: 30px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover { background: #f1f8e9; }
+
+        #preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            display: none;
+            margin: 0 auto;
+        }
+
+        .upload-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .upload-area p { color: #777; font-size: 0.9rem; }
+        input[type="file"] { display: none; }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #2e7d32;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #1b5e20; }
+        button:disabled { background: #a5d6a7; cursor: not-allowed; }
+
+        .result {
+            margin-top: 24px;
+            padding: 16px;
+            background: #f1f8e9;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result p { color: #555; font-size: 0.85rem; margin-bottom: 4px; }
+        .result h2 { color: #2e7d32; font-size: 1.2rem; word-break: break-word; }
+
+        .error { margin-top: 16px; color: #c62828; font-size: 0.9rem; display: none; }
+
+        .spinner {
+            display: none;
+            margin: 10px auto 0;
+            width: 28px;
+            height: 28px;
+            border: 3px solid #a5d6a7;
+            border-top-color: #2e7d32;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🌿 Plant Disease Classifier</h1>
+        <p class="subtitle">Upload a leaf image to detect disease</p>
+
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div id="uploadPrompt">
+                <div class="upload-icon">📷</div>
+                <p>Click to upload an image</p>
+            </div>
+            <img id="preview" alt="Preview" />
+        </div>
+
+        <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)" />
+
+        <button id="predictBtn" onclick="predict()" disabled>Classify</button>
+        <div class="spinner" id="spinner"></div>
+
+        <div class="result" id="result">
+            <p>Prediction</p>
+            <h2 id="predictionText"></h2>
+        </div>
+
+        <div class="error" id="error">Something went wrong. Please try again.</div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        function handleFile(event) {
+            selectedFile = event.target.files[0];
+            if (!selectedFile) return;
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                const preview = document.getElementById('preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                document.getElementById('uploadPrompt').style.display = 'none';
+            };
+            reader.readAsDataURL(selectedFile);
+
+            document.getElementById('predictBtn').disabled = false;
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+        }
+
+        async function predict() {
+            if (!selectedFile) return;
+
+            const btn = document.getElementById('predictBtn');
+            const spinner = document.getElementById('spinner');
+            const result = document.getElementById('result');
+            const error = document.getElementById('error');
+
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            result.style.display = 'none';
+            error.style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch('/predict', { method: 'POST', body: formData });
+                const data = await response.json();
+                document.getElementById('predictionText').textContent = data.prediction.replace(/_/g, ' ');
+                result.style.display = 'block';
+            } catch {
+                error.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
