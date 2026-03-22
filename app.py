@@ -13,7 +13,7 @@ app = FastAPI()
 
 # Paths
 BASE_DIR = Path(__file__).parent
-model_path = BASE_DIR / "model" / "plantmodel.pth" / "PlantVillage"
+model_path = BASE_DIR / "model" / "plantmodel.pth"
 
 # Class names (from PlantVillage dataset)
 class_names = [
