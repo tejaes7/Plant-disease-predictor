@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from PIL import Image
 import torch
 import torch.nn as nn
-from torchvision import transforms
+from torchvision import transforms, models
 from torchvision.models import resnet18
 from pathlib import Path
 import io
@@ -13,13 +13,26 @@ app = FastAPI()
 
 # Paths
 BASE_DIR = Path(__file__).parent
-model_path = BASE_DIR / "model" / "plantmodel.pth"
-data_dir = BASE_DIR / "data" / "PlantVillage" / "PlantVillage"
+model_path = BASE_DIR / "model" / "plantmodel.pth" / "PlantVillage"
 
-# Load class names
-from torchvision import datasets
-dataset = datasets.ImageFolder(data_dir)
-class_names = dataset.classes
+# Class names (from PlantVillage dataset)
+class_names = [
+    "Pepper__bell___Bacterial_spot",
+    "Pepper__bell___healthy",
+    "Potato___Early_blight",
+    "Potato___healthy",
+    "Potato___Late_blight",
+    "Tomato_Bacterial_spot",
+    "Tomato_Early_blight",
+    "Tomato_healthy",
+    "Tomato_Late_blight",
+    "Tomato_Leaf_Mold",
+    "Tomato_Septoria_leaf_spot",
+    "Tomato_Spider_mites_Two_spotted_spider_mite",
+    "Tomato__Target_Spot",
+    "Tomato__Tomato_mosaic_virus",
+    "Tomato__Tomato_YellowLeaf__Curl_Virus",
+]
 
 # Transform
 mean = [0.485, 0.456, 0.406]
